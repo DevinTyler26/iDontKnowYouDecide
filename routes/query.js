@@ -1,4 +1,3 @@
-const bcrypt = require("bcrypt");
 const _ = require("lodash");
 const express = require("express");
 const router = express.Router();
@@ -29,7 +28,6 @@ router.get("/", async (req, res) => {
     .then(response => {
       let clientResponse = response.jsonBody.businesses;
       let len = clientResponse.length;
-      console.log(clientResponse);
       if (len === 0) {
         console.log("No Locations");
         res.send("No Locations");

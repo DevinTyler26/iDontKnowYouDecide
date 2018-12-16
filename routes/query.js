@@ -1,11 +1,10 @@
 const _ = require("lodash");
 const express = require("express");
 const router = express.Router();
-const config = require("config");
 const http = require("http");
 const yelp = require("yelp-fusion");
 
-const client = yelp.client(process.env.apiKey || config.get("apiKey"));
+const client = yelp.client(process.env.apiKey);
 
 router.get("/", async (req, res) => {
   const { term, location } = req.body;

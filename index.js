@@ -2,6 +2,8 @@ const winston = require("winston");
 const express = require("express");
 const config = require("config");
 const app = express();
+require("dotenv").config();
+require("babel-polyfill");
 
 require("./startup/logging")();
 require("./startup/cors")(app);

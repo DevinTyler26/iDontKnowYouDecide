@@ -1,4 +1,3 @@
-const auth = require("../middleware/auth");
 const bcrypt = require("bcrypt");
 const _ = require("lodash");
 const express = require("express");
@@ -7,7 +6,7 @@ const config = require("config");
 const http = require("http");
 const yelp = require("yelp-fusion");
 
-const client = yelp.client(config.get("apiKey"));
+const client = yelp.client(process.env.apiKey || config.get("apiKey"));
 
 router.get("/", async (req, res) => {
   console.log(req.body);
@@ -25,6 +24,7 @@ router.get("/", async (req, res) => {
     })
     .catch(e => {
       console.log(e);
+      res.send(e);
     });
 });
 

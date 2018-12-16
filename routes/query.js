@@ -29,6 +29,12 @@ router.get("/", async (req, res) => {
     .then(response => {
       let clientResponse = response.jsonBody.businesses;
       let len = clientResponse.length;
+      console.log(clientResponse);
+      if (len === 0) {
+        console.log("No Locations");
+        res.send("No Locations");
+        return;
+      }
       let choice = Math.floor(Math.random() * (len - 0 + 1) + 0);
       let miles = clientResponse[choice].distance * 0.00062137;
       console.log("------------------------------------------");
@@ -39,7 +45,6 @@ router.get("/", async (req, res) => {
       Options Choice Number: ${choice}
       `);
       console.log("------------------------------------------");
-
       res.send(clientResponse[choice]);
     })
     .catch(e => {

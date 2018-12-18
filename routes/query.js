@@ -1,19 +1,20 @@
-const _ = require("lodash");
 const express = require("express");
 const router = express.Router();
-const http = require("http");
 const yelp = require("yelp-fusion");
 
 const client = yelp.client(process.env.apiKey);
 
 router.get("/", async (req, res) => {
   const { term, location } = req.body;
+
   const search = {
     term,
     radius: 10000,
     limit: 50,
-    open_now: true
+    open_now: true,
+    category: "food,All"
   };
+
   if (location) {
     search.location = location;
   } else {
@@ -21,6 +22,7 @@ router.get("/", async (req, res) => {
     search.latitude = req.lat || 47.570475;
     search.longitude = req.long || -122.020556;
   }
+
   console.log("Searchhhhhhhhhhh", search);
   client
     .search(search)
@@ -32,7 +34,7 @@ router.get("/", async (req, res) => {
         res.send("No Locations");
         return;
       }
-      let choice = Math.floor(Math.random() * (len - 0 + 1) + 0);
+      let choice = Math.floor(Math.random() * (len + 1));
       let miles = clientResponse[choice].distance * 0.00062137;
       console.log("------------------------------------------");
       console.log(`

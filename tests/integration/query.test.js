@@ -1,5 +1,4 @@
 const request = require("supertest");
-const config = require("config");
 
 let server;
 

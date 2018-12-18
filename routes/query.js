@@ -1,25 +1,49 @@
-const bcrypt = require("bcrypt");
-const _ = require("lodash");
 const express = require("express");
 const router = express.Router();
-const config = require("config");
-const http = require("http");
 const yelp = require("yelp-fusion");
 
-const client = yelp.client(process.env.apiKey || config.get("apiKey"));
+const client = yelp.client(process.env.apiKey);
 
 router.get("/", async (req, res) => {
-  console.log(req.body);
+  const { term, location } = req.body;
+
+  const search = {
+    term,
+    radius: 10000,
+    limit: 50,
+    open_now: true,
+    category: "food,All"
+  };
+
+  if (location) {
+    search.location = location;
+  } else {
+    console.log("No Location Provided, using user location");
+    search.latitude = req.lat || 47.570475;
+    search.longitude = req.long || -122.020556;
+  }
+
+  console.log("Searchhhhhhhhhhh", search);
   client
-    .search({
-      term: req.body.term,
-      location: req.body.location || "Seattle" // this or option will be the location of the user if they do not supply one
-    })
+    .search(search)
     .then(response => {
       let clientResponse = response.jsonBody.businesses;
       let len = clientResponse.length;
-      let choice = Math.floor(Math.random(0, len) * 10);
-      console.log(choice);
+      if (len === 0) {
+        console.log("No Locations");
+        res.send("No Locations");
+        return;
+      }
+      let choice = Math.floor(Math.random() * (len + 1));
+      let miles = clientResponse[choice].distance * 0.00062137;
+      console.log("------------------------------------------");
+      console.log(`
+      Picked:  ${clientResponse[choice].name}
+      Miles Away: ${miles}
+      Options Length: ${len}
+      Options Choice Number: ${choice}
+      `);
+      console.log("------------------------------------------");
       res.send(clientResponse[choice]);
     })
     .catch(e => {

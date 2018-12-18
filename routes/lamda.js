@@ -19,7 +19,7 @@ const Alexa = require("alexa-sdk");
 //Make sure to enclose your value in quotes, like this: const APP_ID = 'amzn1.ask.skill.bb4045e6-b3e8-4133-b650-72923c5980f1';
 const APP_ID = "amzn1.ask.skill.aacf2066-fbd6-4006-953c-2b568ef7281a";
 
-const SKILL_NAME = "I Don't Know, You Decide";
+const SKILL_NAME = "I Don't Know, You Decide.";
 const HELP_MESSAGE =
   "You can say somthing like, Find a place to eat at, or, Find me a place Burger joint in Seattle to eat at. What can I help you with?";
 const HELP_REPROMPT = "What can I help you with?";
@@ -40,18 +40,18 @@ const greetings = [
 //=========================================================================================================================================
 
 function buildHandlers(event) {
-  handlers = {
+  var handlers = {
     LaunchRequest: function() {
-      this.emit("GetNewFactIntent");
-    },
-    GetNewFactIntent: function() {
       const greetingsIndex = Math.floor(Math.random() * greetings.length);
-      const randomGreeting = factArr[greetingsIndex];
-      const speechOutput = GET_FACT_MESSAGE + randomGreeting;
+      const randomGreeting = greetings[greetingsIndex];
+      const speechOutput = randomGreeting;
 
       this.response.cardRenderer(SKILL_NAME, randomGreeting);
       this.response.speak(speechOutput);
       this.emit(":responseReady");
+    },
+    getGreeting: function() {
+      console.log(null);
     },
     "AMAZON.HelpIntent": function() {
       const speechOutput = HELP_MESSAGE;

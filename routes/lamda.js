@@ -41,7 +41,7 @@ const greetings = [
 
 function buildHandlers(event) {
   var handlers = {
-    LaunchRequest: function() {
+    "LaunchRequest": function() {
       const greetingsIndex = Math.floor(Math.random() * greetings.length);
       const randomGreeting = greetings[greetingsIndex];
       const speechOutput = randomGreeting;
@@ -50,8 +50,53 @@ function buildHandlers(event) {
       this.response.speak(speechOutput);
       this.emit(":responseReady");
     },
-    getGreeting: function() {
+    "getGreeting": async function() {
       console.log(null);
+    },
+    "findRestaurant": function(){
+    
+      const myLocation = event.request.intent.slots.city.value;
+      const myCategory = event.request.intent.slots.place.value;
+
+      const search = {
+        term: myCategory,
+        radius: 10000,
+        limit: 50,
+        open_now: true,
+        category: "food,All"
+      };
+    
+      if (myLocation) {
+        search.location = location;
+      } else {
+        search.location = await getLocation(event);
+      }
+      client
+        .search(search)
+        .then(response => {
+          let clientResponse = response.jsonBody.businesses;
+          let len = clientResponse.length;
+          if (len === 0) {
+            console.log("No Locations");
+            res.send("No Locations");
+            return;
+          }
+          let choice = Math.floor(Math.random() * (len + 1));
+          let miles = clientResponse[choice].distance * 0.00062137;
+          console.log("------------------------------------------");
+          console.log(`
+          Picked:  ${clientResponse[choice].name}
+          Miles Away: ${miles}
+          Options Length: ${len}
+          Options Choice Number: ${choice}
+          `);
+          console.log("------------------------------------------");
+          this.response.speak(`How about trying out ${place}. It is ${miles} away from your location given and is currently open.`);
+        })
+        .catch(e => {
+          console.log(e);
+          res.send(e);
+        });
     },
     "AMAZON.HelpIntent": function() {
       const speechOutput = HELP_MESSAGE;
@@ -77,3 +122,34 @@ exports.handler = function(event, context, callback) {
   alexa.registerHandlers(buildHandlers);
   alexa.execute();
 };
+
+
+function getLocation(event){
+  //generate the voice response using this.response.speak 
+  this.response.speak('Please grant skill permissions to access your device address.'); 
+  const permissions = ['read::alexa:device:all:address']; 
+  this.response.askForPermissionsConsentCard(permissions); 
+  this.emit(':responseReady'); 
+  //grabbing the deviceID and api access token
+  const token = event.context.System.apiAccessToken 
+  const deviceId = event.context.System.device.deviceId; 
+  //getting the api endpoint
+  const apiEndpoint = event.context.System.apiEndpoint; 
+  // Grabbing the address and then saving it as a string for later
+  const das = new Alexa.services.DeviceAddressService(); 
+  const city;
+  das.getFullAddress(deviceId, apiEndpoint, token) 
+  .then((data) => { 
+    //this.response.speak('<address information>'); 
+    JSON.stringify(data); //turning the address into a string. 
+    city = data.city;
+    //this.response.speak("You are in " + data.city); 
+    this.emit(':responseReady'); 
+  }) 
+.catch((error) => { 
+    this.response.speak('I\'m sorry. Something went wrong.'); 
+    this.emit(':responseReady'); 
+    console.log(error.message); 
+    }); 
+    return city;
+}
